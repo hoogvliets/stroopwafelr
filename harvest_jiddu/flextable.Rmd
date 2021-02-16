@@ -1,0 +1,132 @@
+---
+title: "Flextable"
+output: html_notebook
+---
+
+Version: flextable_0.6.2
+
+```{r}
+library(purrr) # compose function of purrr conflicts with compose from flextable
+library(flextable)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+
+# Documentation:
+
+- [https://davidgohel.github.io/flextable/](https://davidgohel.github.io/flextable/)
+
+- [https://ardata-fr.github.io/flextable-book/](https://ardata-fr.github.io/flextable-book/)
+
+![flextable](https://www.ardata.fr/img/illustrations/flextable_functions.svg)
+
+# Example
+
+```{r}
+ft   <- mtcars[, c(8:9, 2, 3, 1, 6, 5, 7)] %>% arrange(vs, am, cyl) %>% 
+  mutate(gg = map(seq_len(n()), ~ runif(10) *  2)) %>% 
+  mutate(gg = map(gg, function(dt) {
+    ggplot(mapping = aes(x = seq_along(dt), y = dt)) + geom_line() + theme_void() })) 
+
+ftnc <- ncol(ft)
+
+colourer <- scales::col_numeric(
+  palette = c("transparent", "red"),
+  domain = c(0, 500))
+
+as_grouped_data(ft, groups = "vs") %>% 
+  as_flextable() %>% 
+# flextable(ft) %>% #, col_keys = names(ft)[-ftnc]) %>% 
+  # set_header_labels(mpg = "MPG", wt = "WT") %>% 
+  # add_header_lines(values = "Topper", top = TRUE) %>% 
+  # add_header_row(values = c("", "head", "yeah"), colwidths = c(2, ftnc - 5, 3)) %>% 
+  # add_footer_row(values = "Feet", colwidths = ftnc) %>% 
+  set_header_df(mapping = tibble(
+    col_keys = c("mpg", "cyl", "disp", "vs", "am", "wt", "list", "drat", "qsec"),
+    topline  = c("Int", "Int", "dbl", "dbl", "dbl", "wt", "list", "drat", "qsec"),
+    botline  = c("mpg", "cyl", "disp", "vs", "am", "wt", "list", "drat", "qsec")),
+    key = "col_keys") %>%
+  merge_h(part = "header") %>% 
+  merge_v(j = "wt", part = "header") %>% 
+  theme_alafoli() %>% 
+  italic(i = 2, j = 1, part = "header") %>% 
+  bold(part = "header") %>% 
+  align(i = 2, align = "right", part = "header") %>% 
+  align(i = 1, align = "center", part = "header") %>% 
+  # merge_v(j = "am", target = c("vs", "am")) %>% 
+  merge_v(j = "cyl", target = c("am", "cyl")) %>% 
+  color(i = c(1, 2), j = c(3, 4), color = "steelblue") %>% 
+  bg(i = ~ between(wt, 3.3, 4.2), j = ~ mpg, bg = "gray") %>% 
+  fontsize(part = "body", size = 9) %>% 
+  bg(bg = "#e05297", part = "header") %>% 
+  bg(bg = colourer, j = "disp", part = "body") %>% 
+  color(color = "white", part = "header") %>% 
+  bg(i = ~ !is.na(vs), bg = "#fceef5", part = "body") %>% 
+  border(i = ~ !is.na(vs), border.bottom = officer::fp_border(style = "dashed"),
+         border.top = officer::fp_border(style = "solid")) %>%
+  align(i = ~ !is.na(vs), align = "center", part = "body" ) %>% 
+  highlight(j = "wt", # grep("mpg", colnames(ft), value = TRUE),
+            color = function(x) ifelse(x > 15, "yellow", "transparent")) %>% 
+  fix_border_issues() %>%
+  flextable::compose(j = "gg",
+          value = as_paragraph(
+            gg_chunk(value = gg, width = 1, height = 0.1)
+            )) %>% 
+  flextable::compose(j = "drat",
+          value = as_paragraph(
+            minibar(value = drat, max = max(drat, na.rm = TRUE), height = .15)
+            ),
+  part = "body") %>% 
+  flextable::compose(j = "qsec",
+          value = as_paragraph(
+            linerange(value = qsec, max = max(qsec, na.rm = TRUE), height = .15)
+            ),
+  part = "body")
+  # flextable::compose(j = "list", value = as_paragraph(
+  #   plot_chunk(value = list, type = "line", col = "pink",
+  #              width = 1.5, height = .4, free_scale = TRUE)
+  # ))
+# htmltools_value() # For shiny uiOutput
+```
+
+# Shiny
+
+```{r, eval=FALSE}
+library(shiny)
+library(flextable)
+library(dplyr)
+
+dat <- mtcars %>%
+  mutate(car = rownames(.)) %>%
+  select(car, everything())
+
+ui <- fluidPage(
+  titlePanel("mtcars"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("mpg", "mpg Limit", min = 11, max = 33, value = 20),
+      actionButton("browse", "Browser")
+    ),
+    mainPanel(uiOutput("mtcars_ft"))
+  )
+)
+
+server <- function(input, output) {
+  observeEvent(input$browse, { browser() })
+  
+  output$mtcars_ft <- renderUI({
+    req(input$mpg)
+    filter(dat, mpg <= input$mpg) %>%
+      flextable() %>%
+      theme_vader() %>%
+      autofit() %>%
+      htmltools_value()
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+```
+
