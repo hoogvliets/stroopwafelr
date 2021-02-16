@@ -8,40 +8,40 @@ output:
     toc: true
 ---
 
-# Config
+# Config {.tabset}
 ## Libraries
 ## 
 
 
-# Import
+# Import {.tabset}
 ## Storage connectors
 ## Local connectors
 
-# Tidy
+# Tidy {.tabset}
+## Bla
+
+#Transform {.tabset}
+## Bla
 
 
-#Transform
 
-
-
-
-#Model
+#Model {.tabset}
 ## Supervised learning
 ### 
 
-## Unsupervised learning
+## Unsupervised learning {.tabset}
 ### K-means
 ### PCA
 
-## Times series
+## Times series {.tabset}
 ### Arima
 
-# Visualise
+# Visualise {.tabset}
 ## Plotting
 ## Maps
 ## Tables
 
-# Report
+# Report {.tabset}
 ## Rmarkdown
 ## Dashboards
 

@@ -5,11 +5,12 @@
     -   [2.1 Storage connectors](#storage-connectors)
     -   [2.2 Local connectors](#local-connectors)
 -   [3 Tidy](#tidy)
-    -   [3.1 Unsupervised learning](#unsupervised-learning)
-        -   [3.1.1 K-means](#k-means)
-        -   [3.1.2 PCA](#pca)
-    -   [3.2 Times series](#times-series)
-        -   [3.2.1 Arima](#arima)
+    -   [3.1 Bla](#bla)
+    -   [3.2 Unsupervised learning](#unsupervised-learning)
+        -   [3.2.1 K-means](#k-means)
+        -   [3.2.2 PCA](#pca)
+    -   [3.3 Times series](#times-series)
+        -   [3.3.1 Arima](#arima)
 -   [4 Visualise](#visualise)
     -   [4.1 Plotting](#plotting)
     -   [4.2 Maps](#maps)
@@ -41,21 +42,24 @@
 3 Tidy
 ======
 
-\#Transform
+3.1 Bla
+-------
 
-\#Model \#\# Supervised learning \#\#\#
+\#Transform {.tabset} \#\# Bla
 
-3.1 Unsupervised learning
+\#Model {.tabset} \#\# Supervised learning \#\#\#
+
+3.2 Unsupervised learning
 -------------------------
 
-### 3.1.1 K-means
+### 3.2.1 K-means
 
-### 3.1.2 PCA
+### 3.2.2 PCA
 
-3.2 Times series
+3.3 Times series
 ----------------
 
-### 3.2.1 Arima
+### 3.3.1 Arima
 
 4 Visualise
 ===========
