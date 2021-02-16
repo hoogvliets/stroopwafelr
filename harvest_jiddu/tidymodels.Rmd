@@ -1,0 +1,17 @@
+---
+title: "Tidymodels"
+output: html_notebook
+---
+
+
+# tidymodels
+
+- [tidymodels](https://www.tidymodels.org/learn/)
+
+https://www.tmwr.org/
+
+https://www.youtube.com/juliasilge
+
+## Forecasting 
+
+https://github.com/rstudio-conf-2020/time-series-forecasting

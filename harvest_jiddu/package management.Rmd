@@ -1,0 +1,8 @@
+---
+title: "Package management"
+output: html_notebook
+---
+
+
+- [renv](https://rstudio.github.io/renv/articles/renv.html)
+

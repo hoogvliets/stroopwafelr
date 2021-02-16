@@ -1,0 +1,9 @@
+---
+title: "Plotly"
+output: html_notebook
+---
+
+
+Plotly unified hoverinfo (https://plotly.com/r/hover-text-and-formatting/)
+Plotly animations (https://plotly.com/r/animations/)
+Plotly (https://plotly.com/r/)

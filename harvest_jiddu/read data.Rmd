@@ -1,0 +1,13 @@
+---
+title: "Read data"
+output: html_notebook
+---
+
+```{r}
+library(magrittr)
+```
+
+
+# JSON files
+
+Tidying nested JSON data with [tidyr rectangling](https://tidyr.tidyverse.org/articles/rectangle.html)

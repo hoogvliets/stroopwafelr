@@ -1,0 +1,8 @@
+---
+title: "Data sources"
+output: html_notebook
+---
+
+- [rhdx](https://github.com/dickoa/rhdx) - [Humanitarian data](https://data.humdata.org/dataset)
+
+

@@ -1,0 +1,36 @@
+---
+title: "Tidy evaluation"
+output: html_notebook
+---
+
+```{r}
+library(magrittr)
+```
+
+
+# Tidy evaluation:
+
+- [rlang](https://www.tidyverse.org/blog/2019/06/rlang-0-4-0/)
+
+```{r}
+rlang_example <- function(data, var, by, ..., by_string, name) {
+  data %>%
+    # Quote and unquote interpolation
+    dplyr::group_by({{ by }}) %>%
+    dplyr::summarise(mpg_max = max({{ var }}, na.rm = TRUE)) %>% 
+    # Multiple custom arguments
+    dplyr::mutate(...) %>% 
+    # Variable by string
+    dplyr::mutate(string_var = .data[[by_string]] / 2) %>% 
+    # Variable name
+    dplyr::mutate({{ name }} := runif(dplyr::n()))
+}
+
+rlang_example(
+  data      = mtcars, 
+  var       = mpg, 
+  by        = cyl, 
+  mpg_max2  = mpg_max * 2, # ...
+  by_string = "cyl",
+  name      = runif)
+```

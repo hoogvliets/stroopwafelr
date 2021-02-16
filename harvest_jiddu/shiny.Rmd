@@ -1,0 +1,18 @@
+---
+title: "Shiny"
+output: html_notebook
+---
+
+# shiny
+
+[Mastering Shiny](https://mastering-shiny.org/scaling-testing.html)
+
+https://www.youtube.com/c/shinydeveloperseries
+
+- [flexdahboard](https://rmarkdown.rstudio.com/flexdashboard/index.html)
+
+## Shiny theming
+
+- [bslib](https://github.com/rstudio/bslib) 
+- [thematic](https://rstudio.github.io/thematic/articles/Shiny.html) 
+- bs4Dash, see own file
