@@ -3,7 +3,7 @@ title: "Readme"
 author: "Jiddu Alexander & Raphael Hoogvliets"
 date: "16-2-2021"
 output:
-  md_document:
+  html_document:
     number_sections: true
     toc: true
 ---
