@@ -1,0 +1,22 @@
+```{r Loading libraries, results="hide", message=FALSE}
+# list of required packages
+l_packages <- list("caret",
+              "lubridate",
+              "magrittr",
+              "partykit",
+              "pROC",
+              "purrr",
+              "RODBC",
+              "skimr",
+              "tidyverse") 
+
+# install missing packages
+if (length(setdiff(l_packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(l_packages, rownames(installed.packages())))  
+}
+
+# open required packages
+lapply(l_packages, library, character.only = TRUE)
+
+rm(l_packages)
+```
