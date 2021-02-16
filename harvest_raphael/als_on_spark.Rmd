@@ -1,0 +1,174 @@
+#test
+
+# Load Packages
+
+```{r}
+library(tidyverse)
+library(recommenderlab)
+library(janitor)
+```
+
+# Load Data
+
+```{r, message = TRUE}
+sales_salesorderdetail_base <- read.csv2("./Data/aw_sales_salesorderdetail.csv")
+sales_salesorderdetail <- read_csv2("./Data/aw_sales_salesorderdetail.csv")
+sales_salesorderheader <- read_csv2("./Data/aw_sales_salesorderheader.csv")
+sales_customer <- read_csv2("./Data/aw_sales_customer.csv")
+sales_store <- read_csv2("./Data/aw_sales_store.csv")
+person_person <- read_csv2("./Data/aw_person_person.csv")
+production_product <- read_csv2("./Data/aw_production_product.csv")
+```
+
+# Data Transformation
+
+```{r}
+sales_selection <- sales_salesorderdetail %>% 
+  left_join(sales_salesorderheader, by = "SalesOrderID") %>% 
+  left_join(sales_customer, by = "CustomerID") %>% 
+  select(OrderQty, ProductID, CustomerID)
+
+sales_selection <- sales_selection[1:20000, ]
+
+ratings_purchases <- sales_selection[!duplicated(sales_selection), ] %>% 
+  spread(key = OrderQty, value = OrderQty) %>% 
+  add_totals_col() %>% 
+  mutate(Total = Total - CustomerID) %>% 
+  select(ProductID, CustomerID, Total) %>% 
+  spread(key = ProductID, value = Total)
+
+binary_purchases <- sales_selection[!duplicated(sales_selection), ] %>% 
+  spread(key = OrderQty, value = OrderQty) %>% 
+  add_totals_col() %>% 
+  mutate(Total = Total - CustomerID) %>% 
+  mutate(Bought = ifelse(Total > 0, 1, 0)) %>% 
+  select(ProductID, CustomerID, Bought) %>% 
+  spread(key = ProductID, value = Bought)
+
+
+ratings_purchases[is.na(ratings_purchases)] <- 0
+binary_purchases[is.na(binary_purchases)] <- 0
+```
+
+# Spark Data Preperation
+
+```{r}
+ratings_purchases_stacked <- ratings_purchases %>% 
+  gather(key = ProductID, value = Order, -CustomerID)
+ratings_purchases_stacked[is.na(ratings_purchases_stacked)] <- 0
+ratings_purchases_stacked$ProductID <- as.numeric(ratings_purchases_stacked$ProductID)
+glimpse(ratings_purchases_stacked)
+
+binary_purchases_stacked <- binary_purchases %>% 
+  gather(key = ProductID, value = Order, -CustomerID)
+binary_purchases_stacked[is.na(binary_purchases_stacked)] <- 0
+binary_purchases_stacked$ProductID <- as.numeric(binary_purchases_stacked$ProductID)
+glimpse(binary_purchases_complete)
+```
+
+# Fire up spark
+
+```{r}
+# devtools::install_github('rstudio/sparklyr', force=TRUE) spark_install(version
+# = '2.1.0') spark_install_dir()
+# Sparklyr was installed with the following command
+# install.packages('sparklyr',force='TRUE')
+
+library(sparklyr)
+
+# installed local version of Spark
+spark_install(version = "2.0.2", hadoop_version = "2.7")
+
+# Connect to your Spark cluster
+spconn <- spark_connect(master = "local")
+
+# Check Print the version of Spark
+spark_version(spconn)
+```
+
+# Copy Data Tables to Spark
+
+```{r}
+spset_start <- proc.time()
+
+spadventure_ratings <- sdf_copy_to(spconn, ratings_purchases_stacked, "spadventure_ratings", overwrite = TRUE)
+spadventure_binary <- sdf_copy_to(spconn, binary_purchases_stacked, "spadventure_binary", overwrite = TRUE)
+
+# Peek at spark data
+glimpse(spadventure_ratings)
+glimpse(spadventure_binary)
+src_tbls(spconn)
+
+#View processing time
+spset_end <- proc.time()
+spset_end - spset_start
+```
+
+
+# ALS Factorization Model
+
+```{r}
+# Make Models
+model_als_ratings <- ml_als_factorization(spadventure_ratings, rating.column = "Order", user.column = "CustomerID", 
+    item.column = "ProductID", iter.max = 7)
+summary(model_als_ratings)
+model_als_binary <- ml_als_factorization(spadventure_binary, rating.column = "Order", user.column = "CustomerID", 
+    item.column = "ProductID", iter.max = 7)
+summary(model_als_binary)
+
+# Clean Enviroment
+rm(binary_purchases, binary_purchases_complete, binary_purchases_stacked)
+rm(ratings_purchases, ratings_purchases_complete, ratings_purchases_stacked)
+
+# Calculate Predicton
+predictions_ratings <- model_als_ratings$.model %>% invoke("transform", spark_dataframe(spadventure_ratings)) %>% 
+    collect()
+class(predictions_ratings)
+predictions_binary <- model_als_binary$.model %>% invoke("transform", spark_dataframe(spadventure_binary)) %>% 
+    collect()
+class(predictions_binary)
+
+# Santity check
+head(data.frame(predictions_ratings), 10)
+predictions_ratings[[3]]
+head(data.frame(predictions_binary), 10)
+predictions_binary[[3]]
+```
+
+# Adding Friendly Names
+
+```{r}
+predictions_info_ratings <- predictions_ratings %>% 
+  left_join(production_product, by = "ProductID") %>% 
+  select(CustomerID, ProductID, Order, prediction, Name) %>% 
+    spread(key = ProductID, value = prediction)
+
+predictions_info_binary <- predictions_binary %>% 
+  left_join(production_product, by = "ProductID") %>% 
+  select(CustomerID, ProductID, Order, prediction, Name) %>%
+   spread(key = ProductID, value = prediction)
+```
+
+STORE OUTPUT
+
+```{r}
+write_csv(predictions_info_ratings, "./Data/predictions_ratings.csv")
+write_csv(predictions_info_binary, "./Data/predictions_binary.csv")
+```
+
+
+
+
+```{r}
+predictions_binary %>% 
+  arrange(desc(prediction))
+
+predictions_binary %>%
+  filter(CustomerID == 29614) %>% 
+  arrange(desc(prediction)) %>% 
+  left_join(production_product, by = "ProductID") 
+
+
+
+```
+
