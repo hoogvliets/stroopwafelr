@@ -1,1 +1,7 @@
 stroopwafelr
+model
+supervised-learning
+section
+unsupervised-learning
+k-means
+plot-cluster-heatmap

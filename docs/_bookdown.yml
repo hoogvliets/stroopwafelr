@@ -1,3 +1,1 @@
-book_filename: "Bookdown filename"
-chapter_name: ""
 rmd_files: ["index.Rmd", "model.Rmd"]
