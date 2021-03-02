@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
-# Config {.tabset}
+# Config
 ## Libraries
 ```{r Loading libraries, results="hide", message=FALSE}
 # list of required packages
@@ -38,11 +38,12 @@ rm(l_packages)
 ## 
 
 
-# Import {.tabset}
+# Import
 ## Storage connectors
 ## Local connectors
 
-# Tidy {.tabset}
+# Tidy 
+
 ## Tidy Evaluation
 
 ```{r}
@@ -75,22 +76,65 @@ rlang_example(
   name      = runif)
 ```
 
-# Transform {.tabset}
+# Transform 
 ## Bla
 
 
 
-# Model {.tabset}
+# Model 
 ## Supervised learning
 ###  
-## Unsupervised learning {.tabset}
+## Unsupervised learning 
 ### K-means
 
 #### Scree and elbow plots to determine clusters
 
-```{r, eval=F, echo=T}
-scree_selection <- data_cluster[,-1]          
 
+
+```{r}
+library(tidyverse)
+library(cluster)
+```
+
+```{r}
+kmeans_data <- iris
+kmeans_columns <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+
+kmeans_selection <- kmeans_data[kmeans_columns] %>% scale() %>% data.frame()
+```
+
+
+```{r}
+silhouette_tries <- 10
+
+silhouette_avg_f <- function(k_value) {
+  model <- pam(x = kmeans_selection,
+               k = k_value)
+  model$silinfo$avg.width
+}
+
+silhouette_widths <- map_dbl(2:silhouette_tries, silhouette_avg_f)
+
+silhouette_results <- data.frame(
+  k = 2:silhouette_tries,
+  sil_width = silhouette_widths
+)
+
+silhouette_results
+
+max(silhouette_results$sil_width)
+
+kmeans_centroids <- silhouette_results %>% 
+arrange(desc(sil_width)) %>% 
+  slice(1) %>% 
+  pull(k)
+
+rm(silhouette_avg_f, silhouette_tries, silhouette_widths, silhouette_results)
+```
+
+
+
+```{r, eval=F, echo=T}
 # scree parameters
 scree_wss <- 0                 # initialize total within sum of squares error
 scree_k   <- 5                 # number of clusters to cycle
@@ -98,7 +142,7 @@ scree_ns <- 10                 # number of random starts to cycle
 
 # For 1 to 15 cluster centers
 for (i in 1:scree_k) {
-  km_out <- kmeans(scree_selection, centers = i, nstart = scree_ns)
+  km_out <- kmeans(kmeans_selection, centers = i, nstart = scree_ns)
   # Save total within sum of squares to wss variable
   scree_wss[i] <- km_out$tot.withinss
 }
@@ -109,7 +153,7 @@ plot(1:scree_k, scree_wss, type = "b",
      ylab = "Within groups sum of squares")
 
 # clean up environment
-rm(i, scree_selection, scree_k, scree_ns, scree_wss, km_out)
+rm(i, scree_k, scree_ns, scree_wss, km_out)
 ```
 
 #### Run clustering algorithm
@@ -119,49 +163,52 @@ rm(i, scree_selection, scree_k, scree_ns, scree_wss, km_out)
 set.seed(1337)
 
 # run k-means with 3 centers and 20 starts
-k_output <- kmeans(data_cluster_elite[,-1], 3, nstart = 20)
+kmeans_output <- kmeans(kmeans_selection, kmeans_centroids, nstart = 20)
 
 ```
 
 #### Merge clusters to data
 
 ```{r, eval=F, echo=T}
-data_cluster_elite$cluster <- k_output$cluster
+kmeans_results <- kmeans_data %>% 
+  mutate(Cluster = kmeans_output$cluster) %>%
+  mutate(Cluster = as.character(Cluster)) %>% # change to string for plotting asthetics
+  pivot_longer(cols = c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width), names_to = "Feature", values_to = "Value") %>% 
+  select(Feature, Value, Cluster)
 ```
 
-#### Calculate cluster means
 
-```{r, eval=F, echo=T}
-# calculate cluster means as seperate columns and bind them together
-clusters <-
-  cbind(
-data_cluster_elite[,-1] %>% 
-  subset(cluster == 1) %>% 
-  colMeans(),
-data_cluster_elite[,-1] %>% 
-  subset(cluster == 2) %>% 
-  colMeans(),
-data_cluster_elite[,-1] %>% 
-  subset(cluster == 3) %>% 
-  colMeans()
-)
-
-# set cluster number as columnnames
-colnames(clusters) = clusters["cluster",]
+```{r}
+kmeans_clustermeans <- kmeans_results %>% 
+  group_by(Feature, Cluster) %>% 
+  summarise(
+    Value = mean(Value)
+  )
 ```
+
 
 #### Plot cluster heatmap
 
 ```{r}
 # remove row names cluster and melt data
-plotdata_h <-clusters[-which(rownames(clusters) %in% c("cluster")), ] %>% 
-  melt()
+kmeans_clustermeans %>%
+  
+  # plot heatmap
+  ggplot(aes(Cluster, Feature)) + 
+  geom_tile(aes(fill = Value),
+            colour = "white") +
+  scale_fill_gradient(low = "white",
+                      high = "#01B8AA") +
+  theme(legend.position = "none",
+        axis.line = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y=element_blank())
+```
+#### Cleanup environment
 
-# remove columns to standardised names
-colnames(plotdata_h) <- c("Var1", "Var2", "value")
-
-# plot heatmap
-ggplot(plotdata_h, aes(Var2, Var1)) + geom_tile(aes(fill = value), colour = "white") + scale_fill_gradient(low = "white", high = "#01B8AA") + theme(legend.position="none", axis.line=element_blank(), axis.ticks=element_blank(), axis.title.x=element_blank(), axis.title.y=element_blank())
+```{r}
+rm(kmeans_clustermeans, kmeans_data, kmeans_output, kmeans_results, kmeans_selection, kmeans_centroids, kmeans_columns)
 ```
 
 ### PCA
@@ -211,18 +258,18 @@ plot(res.mca,
 
 
 
-## Times series {.tabset}
+## Times series 
 ### Arima
 ## Recommendation engines
 ### ALS
 ## Tidy models
 
-# Visualise {.tabset}
+# Visualise 
 ## Plotting
 ## Maps
 ## Tables
 
-# Report {.tabset}
+# Report 
 ## Rmarkdown
 ## Dashboards
 ## Flextable
