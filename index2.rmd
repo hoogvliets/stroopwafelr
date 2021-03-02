@@ -11,6 +11,52 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
+### PCA
+```{r}
+library(FactoMineR)
+library(skimr)
+library(tidyverse)
+data("poison")
+skim(poison)
+
+snippet_mca <- poison %>% 
+  select_if(function(col) is.factor(col) | is.numeric(col)) %>% 
+  names()
+
+
+data_mcatest <- poison[snippet_mca]
+
+
+data_mcatest %>% skim()
+
+
+res.mca <- FAMD(data_mcatest,
+                             graph=TRUE)
+
+
+
+
+
+eig.val <- res.mca$eig
+barplot(eig.val[, 2], 
+        names.arg = 1:nrow(eig.val), 
+        main = "Variances Explained by Dimensions (%)",
+        xlab = "Principal Dimensions",
+        ylab = "Percentage of variances",
+        col ="steelblue")
+# Add connected line segments to the plot
+lines(x = 1:nrow(eig.val), eig.val[, 2], 
+      type = "b", pch = 19, col = "red")
+
+plot(res.mca, autoLab = "yes")
+
+plot(res.mca,
+     invisible = c("var", "quali.sup", "quanti.sup"),
+     cex = 0.8,                                    
+     autoLab = "yes")
+```
+
+
 # Config
 ## Libraries
 ```{r Loading libraries, results="hide", message=FALSE}
