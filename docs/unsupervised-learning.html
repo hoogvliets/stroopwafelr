@@ -154,30 +154,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Test 123</p>
 <div id="k-means" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> K-means</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="unsupervised-learning.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="unsupervised-learning.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cluster)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="unsupervised-learning.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="unsupervised-learning.html#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cluster)</span></code></pre></div>
 <p>Prepare data selection.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="unsupervised-learning.html#cb2-1" aria-hidden="true" tabindex="-1"></a>kmeans_data <span class="ot">&lt;-</span> iris</span>
-<span id="cb2-2"><a href="unsupervised-learning.html#cb2-2" aria-hidden="true" tabindex="-1"></a>kmeans_columns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Sepal.Length&quot;</span>, <span class="st">&quot;Sepal.Width&quot;</span>, <span class="st">&quot;Petal.Length&quot;</span>, <span class="st">&quot;Petal.Width&quot;</span>)</span>
-<span id="cb2-3"><a href="unsupervised-learning.html#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="unsupervised-learning.html#cb2-4" aria-hidden="true" tabindex="-1"></a>kmeans_selection <span class="ot">&lt;-</span> kmeans_data[kmeans_columns] <span class="sc">%&gt;%</span> <span class="fu">scale</span>() <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="unsupervised-learning.html#cb3-1" aria-hidden="true" tabindex="-1"></a>kmeans_data <span class="ot">&lt;-</span> iris</span>
+<span id="cb3-2"><a href="unsupervised-learning.html#cb3-2" aria-hidden="true" tabindex="-1"></a>kmeans_columns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Sepal.Length&quot;</span>, <span class="st">&quot;Sepal.Width&quot;</span>, <span class="st">&quot;Petal.Length&quot;</span>, <span class="st">&quot;Petal.Width&quot;</span>)</span>
+<span id="cb3-3"><a href="unsupervised-learning.html#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="unsupervised-learning.html#cb3-4" aria-hidden="true" tabindex="-1"></a>kmeans_selection <span class="ot">&lt;-</span> kmeans_data[kmeans_columns] <span class="sc">%&gt;%</span> <span class="fu">scale</span>() <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>()</span></code></pre></div>
 <p>Execute silhouette analysis to determine number of centroids.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="unsupervised-learning.html#cb3-1" aria-hidden="true" tabindex="-1"></a>silhouette_tries <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb3-2"><a href="unsupervised-learning.html#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="unsupervised-learning.html#cb3-3" aria-hidden="true" tabindex="-1"></a>silhouette_avg_f <span class="ot">&lt;-</span> <span class="cf">function</span>(k_value) {</span>
-<span id="cb3-4"><a href="unsupervised-learning.html#cb3-4" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">pam</span>(<span class="at">x =</span> kmeans_selection,</span>
-<span id="cb3-5"><a href="unsupervised-learning.html#cb3-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">k =</span> k_value)</span>
-<span id="cb3-6"><a href="unsupervised-learning.html#cb3-6" aria-hidden="true" tabindex="-1"></a>  model<span class="sc">$</span>silinfo<span class="sc">$</span>avg.width</span>
-<span id="cb3-7"><a href="unsupervised-learning.html#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-8"><a href="unsupervised-learning.html#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="unsupervised-learning.html#cb3-9" aria-hidden="true" tabindex="-1"></a>silhouette_widths <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(<span class="dv">2</span><span class="sc">:</span>silhouette_tries, silhouette_avg_f)</span>
-<span id="cb3-10"><a href="unsupervised-learning.html#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="unsupervised-learning.html#cb3-11" aria-hidden="true" tabindex="-1"></a>silhouette_results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-12"><a href="unsupervised-learning.html#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">2</span><span class="sc">:</span>silhouette_tries,</span>
-<span id="cb3-13"><a href="unsupervised-learning.html#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">sil_width =</span> silhouette_widths</span>
-<span id="cb3-14"><a href="unsupervised-learning.html#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-15"><a href="unsupervised-learning.html#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="unsupervised-learning.html#cb3-16" aria-hidden="true" tabindex="-1"></a>silhouette_results</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="unsupervised-learning.html#cb4-1" aria-hidden="true" tabindex="-1"></a>silhouette_tries <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb4-2"><a href="unsupervised-learning.html#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="unsupervised-learning.html#cb4-3" aria-hidden="true" tabindex="-1"></a>silhouette_avg_f <span class="ot">&lt;-</span> <span class="cf">function</span>(k_value) {</span>
+<span id="cb4-4"><a href="unsupervised-learning.html#cb4-4" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">pam</span>(<span class="at">x =</span> kmeans_selection,</span>
+<span id="cb4-5"><a href="unsupervised-learning.html#cb4-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">k =</span> k_value)</span>
+<span id="cb4-6"><a href="unsupervised-learning.html#cb4-6" aria-hidden="true" tabindex="-1"></a>  model<span class="sc">$</span>silinfo<span class="sc">$</span>avg.width</span>
+<span id="cb4-7"><a href="unsupervised-learning.html#cb4-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-8"><a href="unsupervised-learning.html#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="unsupervised-learning.html#cb4-9" aria-hidden="true" tabindex="-1"></a>silhouette_widths <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(<span class="dv">2</span><span class="sc">:</span>silhouette_tries, silhouette_avg_f)</span>
+<span id="cb4-10"><a href="unsupervised-learning.html#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="unsupervised-learning.html#cb4-11" aria-hidden="true" tabindex="-1"></a>silhouette_results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-12"><a href="unsupervised-learning.html#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">2</span><span class="sc">:</span>silhouette_tries,</span>
+<span id="cb4-13"><a href="unsupervised-learning.html#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">sil_width =</span> silhouette_widths</span>
+<span id="cb4-14"><a href="unsupervised-learning.html#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-15"><a href="unsupervised-learning.html#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="unsupervised-learning.html#cb4-16" aria-hidden="true" tabindex="-1"></a>silhouette_results</span></code></pre></div>
 <pre><code>##    k sil_width
 ## 1  2 0.5817500
 ## 2  3 0.4566432
@@ -188,71 +188,71 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 7  8 0.3321157
 ## 8  9 0.3310056
 ## 9 10 0.3508136</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="unsupervised-learning.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(silhouette_results<span class="sc">$</span>sil_width)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="unsupervised-learning.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(silhouette_results<span class="sc">$</span>sil_width)</span></code></pre></div>
 <pre><code>## [1] 0.58175</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="unsupervised-learning.html#cb7-1" aria-hidden="true" tabindex="-1"></a>kmeans_centroids <span class="ot">&lt;-</span> silhouette_results <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a href="unsupervised-learning.html#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(<span class="fu">desc</span>(sil_width)) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="unsupervised-learning.html#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-4"><a href="unsupervised-learning.html#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(k)</span>
-<span id="cb7-5"><a href="unsupervised-learning.html#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="unsupervised-learning.html#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(silhouette_avg_f, silhouette_tries, silhouette_widths, silhouette_results)</span></code></pre></div>
-<p>Eyecheck scree plot for the elbow to determine number of centroids.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="unsupervised-learning.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># scree parameters</span></span>
-<span id="cb8-2"><a href="unsupervised-learning.html#cb8-2" aria-hidden="true" tabindex="-1"></a>scree_wss <span class="ot">&lt;-</span> <span class="dv">0</span>                 <span class="co"># initialize total within sum of squares error</span></span>
-<span id="cb8-3"><a href="unsupervised-learning.html#cb8-3" aria-hidden="true" tabindex="-1"></a>scree_k   <span class="ot">&lt;-</span> <span class="dv">5</span>                 <span class="co"># number of clusters to cycle</span></span>
-<span id="cb8-4"><a href="unsupervised-learning.html#cb8-4" aria-hidden="true" tabindex="-1"></a>scree_ns <span class="ot">&lt;-</span> <span class="dv">10</span>                 <span class="co"># number of random starts to cycle</span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="unsupervised-learning.html#cb8-1" aria-hidden="true" tabindex="-1"></a>kmeans_centroids <span class="ot">&lt;-</span> silhouette_results <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="unsupervised-learning.html#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(<span class="fu">desc</span>(sil_width)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a href="unsupervised-learning.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="unsupervised-learning.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(k)</span>
 <span id="cb8-5"><a href="unsupervised-learning.html#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="unsupervised-learning.html#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># For 1 to 15 cluster centers</span></span>
-<span id="cb8-7"><a href="unsupervised-learning.html#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>scree_k) {</span>
-<span id="cb8-8"><a href="unsupervised-learning.html#cb8-8" aria-hidden="true" tabindex="-1"></a>  km_out <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(kmeans_selection, <span class="at">centers =</span> i, <span class="at">nstart =</span> scree_ns)</span>
-<span id="cb8-9"><a href="unsupervised-learning.html#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save total within sum of squares to wss variable</span></span>
-<span id="cb8-10"><a href="unsupervised-learning.html#cb8-10" aria-hidden="true" tabindex="-1"></a>  scree_wss[i] <span class="ot">&lt;-</span> km_out<span class="sc">$</span>tot.withinss</span>
-<span id="cb8-11"><a href="unsupervised-learning.html#cb8-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-12"><a href="unsupervised-learning.html#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="unsupervised-learning.html#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Quickplot of total within sum of squares vs. number of clusters</span></span>
-<span id="cb8-14"><a href="unsupervised-learning.html#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>scree_k, scree_wss, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, </span>
-<span id="cb8-15"><a href="unsupervised-learning.html#cb8-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Number of Clusters&quot;</span>, </span>
-<span id="cb8-16"><a href="unsupervised-learning.html#cb8-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Within groups sum of squares&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="unsupervised-learning.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clean up environment</span></span>
-<span id="cb9-2"><a href="unsupervised-learning.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(i, scree_k, scree_ns, scree_wss, km_out)</span></code></pre></div>
+<span id="cb8-6"><a href="unsupervised-learning.html#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(silhouette_avg_f, silhouette_tries, silhouette_widths, silhouette_results)</span></code></pre></div>
+<p>Eyecheck scree plot for the elbow to determine number of centroids.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="unsupervised-learning.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># scree parameters</span></span>
+<span id="cb9-2"><a href="unsupervised-learning.html#cb9-2" aria-hidden="true" tabindex="-1"></a>scree_wss <span class="ot">&lt;-</span> <span class="dv">0</span>                 <span class="co"># initialize total within sum of squares error</span></span>
+<span id="cb9-3"><a href="unsupervised-learning.html#cb9-3" aria-hidden="true" tabindex="-1"></a>scree_k   <span class="ot">&lt;-</span> <span class="dv">5</span>                 <span class="co"># number of clusters to cycle</span></span>
+<span id="cb9-4"><a href="unsupervised-learning.html#cb9-4" aria-hidden="true" tabindex="-1"></a>scree_ns <span class="ot">&lt;-</span> <span class="dv">10</span>                 <span class="co"># number of random starts to cycle</span></span>
+<span id="cb9-5"><a href="unsupervised-learning.html#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="unsupervised-learning.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># For 1 to 15 cluster centers</span></span>
+<span id="cb9-7"><a href="unsupervised-learning.html#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>scree_k) {</span>
+<span id="cb9-8"><a href="unsupervised-learning.html#cb9-8" aria-hidden="true" tabindex="-1"></a>  km_out <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(kmeans_selection, <span class="at">centers =</span> i, <span class="at">nstart =</span> scree_ns)</span>
+<span id="cb9-9"><a href="unsupervised-learning.html#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save total within sum of squares to wss variable</span></span>
+<span id="cb9-10"><a href="unsupervised-learning.html#cb9-10" aria-hidden="true" tabindex="-1"></a>  scree_wss[i] <span class="ot">&lt;-</span> km_out<span class="sc">$</span>tot.withinss</span>
+<span id="cb9-11"><a href="unsupervised-learning.html#cb9-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-12"><a href="unsupervised-learning.html#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="unsupervised-learning.html#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Quickplot of total within sum of squares vs. number of clusters</span></span>
+<span id="cb9-14"><a href="unsupervised-learning.html#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>scree_k, scree_wss, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, </span>
+<span id="cb9-15"><a href="unsupervised-learning.html#cb9-15" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;Number of Clusters&quot;</span>, </span>
+<span id="cb9-16"><a href="unsupervised-learning.html#cb9-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;Within groups sum of squares&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="unsupervised-learning.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clean up environment</span></span>
+<span id="cb10-2"><a href="unsupervised-learning.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(i, scree_k, scree_ns, scree_wss, km_out)</span></code></pre></div>
 <p>Run k-means algorithm.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="unsupervised-learning.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set random seed for reproducibility</span></span>
-<span id="cb10-2"><a href="unsupervised-learning.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1337</span>)</span>
-<span id="cb10-3"><a href="unsupervised-learning.html#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="unsupervised-learning.html#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># run k-means with 3 centers and 20 starts</span></span>
-<span id="cb10-5"><a href="unsupervised-learning.html#cb10-5" aria-hidden="true" tabindex="-1"></a>kmeans_output <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(kmeans_selection, kmeans_centroids, <span class="at">nstart =</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="unsupervised-learning.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set random seed for reproducibility</span></span>
+<span id="cb11-2"><a href="unsupervised-learning.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1337</span>)</span>
+<span id="cb11-3"><a href="unsupervised-learning.html#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="unsupervised-learning.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># run k-means with 3 centers and 20 starts</span></span>
+<span id="cb11-5"><a href="unsupervised-learning.html#cb11-5" aria-hidden="true" tabindex="-1"></a>kmeans_output <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(kmeans_selection, kmeans_centroids, <span class="at">nstart =</span> <span class="dv">20</span>)</span></code></pre></div>
 <p>Merge the results to our original data, which is not scaled.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="unsupervised-learning.html#cb11-1" aria-hidden="true" tabindex="-1"></a>kmeans_results <span class="ot">&lt;-</span> kmeans_data <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="unsupervised-learning.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cluster =</span> kmeans_output<span class="sc">$</span>cluster) <span class="sc">%&gt;%</span> <span class="co"># Merge clusters to data</span></span>
-<span id="cb11-3"><a href="unsupervised-learning.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cluster =</span> <span class="fu">as.character</span>(Cluster)) <span class="sc">%&gt;%</span> <span class="co"># change to string for plotting asthetics</span></span>
-<span id="cb11-4"><a href="unsupervised-learning.html#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width), <span class="at">names_to =</span> <span class="st">&quot;Feature&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;Value&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-5"><a href="unsupervised-learning.html#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Feature, Value, Cluster)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="unsupervised-learning.html#cb12-1" aria-hidden="true" tabindex="-1"></a>kmeans_results <span class="ot">&lt;-</span> kmeans_data <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="unsupervised-learning.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cluster =</span> kmeans_output<span class="sc">$</span>cluster) <span class="sc">%&gt;%</span> <span class="co"># Merge clusters to data</span></span>
+<span id="cb12-3"><a href="unsupervised-learning.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cluster =</span> <span class="fu">as.character</span>(Cluster)) <span class="sc">%&gt;%</span> <span class="co"># change to string for plotting asthetics</span></span>
+<span id="cb12-4"><a href="unsupervised-learning.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width), <span class="at">names_to =</span> <span class="st">&quot;Feature&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;Value&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-5"><a href="unsupervised-learning.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Feature, Value, Cluster)</span></code></pre></div>
 <p>Get the average value for each feature so can get some useful business information about the clusters.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="unsupervised-learning.html#cb12-1" aria-hidden="true" tabindex="-1"></a>kmeans_clustermeans <span class="ot">&lt;-</span> kmeans_results <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a href="unsupervised-learning.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Feature, Cluster) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="unsupervised-learning.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb12-4"><a href="unsupervised-learning.html#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Value =</span> <span class="fu">mean</span>(Value)</span>
-<span id="cb12-5"><a href="unsupervised-learning.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="unsupervised-learning.html#cb13-1" aria-hidden="true" tabindex="-1"></a>kmeans_clustermeans <span class="ot">&lt;-</span> kmeans_results <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="unsupervised-learning.html#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Feature, Cluster) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a href="unsupervised-learning.html#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb13-4"><a href="unsupervised-learning.html#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Value =</span> <span class="fu">mean</span>(Value)</span>
+<span id="cb13-5"><a href="unsupervised-learning.html#cb13-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;Feature&#39;. You can override using the `.groups` argument.</code></pre>
 <p>Plot a heatmap of the cluster feature means.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="unsupervised-learning.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove row names cluster and melt data</span></span>
-<span id="cb14-2"><a href="unsupervised-learning.html#cb14-2" aria-hidden="true" tabindex="-1"></a>kmeans_clustermeans <span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a href="unsupervised-learning.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-4"><a href="unsupervised-learning.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot heatmap</span></span>
-<span id="cb14-5"><a href="unsupervised-learning.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Cluster, Feature)) <span class="sc">+</span> </span>
-<span id="cb14-6"><a href="unsupervised-learning.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Value),</span>
-<span id="cb14-7"><a href="unsupervised-learning.html#cb14-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">colour =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
-<span id="cb14-8"><a href="unsupervised-learning.html#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">&quot;white&quot;</span>,</span>
-<span id="cb14-9"><a href="unsupervised-learning.html#cb14-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">high =</span> <span class="st">&quot;#01B8AA&quot;</span>) <span class="sc">+</span></span>
-<span id="cb14-10"><a href="unsupervised-learning.html#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>,</span>
-<span id="cb14-11"><a href="unsupervised-learning.html#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.line =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb14-12"><a href="unsupervised-learning.html#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb14-13"><a href="unsupervised-learning.html#cb14-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb14-14"><a href="unsupervised-learning.html#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>())</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="unsupervised-learning.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove row names cluster and melt data</span></span>
+<span id="cb15-2"><a href="unsupervised-learning.html#cb15-2" aria-hidden="true" tabindex="-1"></a>kmeans_clustermeans <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="unsupervised-learning.html#cb15-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-4"><a href="unsupervised-learning.html#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot heatmap</span></span>
+<span id="cb15-5"><a href="unsupervised-learning.html#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Cluster, Feature)) <span class="sc">+</span> </span>
+<span id="cb15-6"><a href="unsupervised-learning.html#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Value),</span>
+<span id="cb15-7"><a href="unsupervised-learning.html#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">colour =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="unsupervised-learning.html#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb15-9"><a href="unsupervised-learning.html#cb15-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">high =</span> <span class="st">&quot;#01B8AA&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="unsupervised-learning.html#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>,</span>
+<span id="cb15-11"><a href="unsupervised-learning.html#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.line =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-12"><a href="unsupervised-learning.html#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-13"><a href="unsupervised-learning.html#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-14"><a href="unsupervised-learning.html#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>())</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>Let’s clean up our environment!</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="unsupervised-learning.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(kmeans_clustermeans, kmeans_data, kmeans_output, kmeans_results, kmeans_selection, kmeans_centroids, kmeans_columns)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="unsupervised-learning.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(kmeans_clustermeans, kmeans_data, kmeans_output, kmeans_results, kmeans_selection, kmeans_centroids, kmeans_columns)</span></code></pre></div>
 
 </div>
 </div>

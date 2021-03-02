@@ -6,5 +6,10 @@ site: bookdown::bookdown_site
 
 # Introduction
 
+Test timestamp: 
+```{r, echo=FALSE}
+lubridate::now()
+```
+
 
 > Omdat stroopwafels lekker zijn
