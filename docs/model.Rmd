@@ -1,0 +1,178 @@
+# Model 
+## Supervised learning
+```{r}
+#bla
+```
+
+###  
+```{r}
+#bla
+```
+
+## Unsupervised learning 
+### K-means
+```{r}
+library(tidyverse)
+library(cluster)
+```
+
+```{r}
+kmeans_data <- iris
+kmeans_columns <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+
+kmeans_selection <- kmeans_data[kmeans_columns] %>% scale() %>% data.frame()
+```
+
+
+```{r}
+silhouette_tries <- 10
+
+silhouette_avg_f <- function(k_value) {
+  model <- pam(x = kmeans_selection,
+               k = k_value)
+  model$silinfo$avg.width
+}
+
+silhouette_widths <- map_dbl(2:silhouette_tries, silhouette_avg_f)
+
+silhouette_results <- data.frame(
+  k = 2:silhouette_tries,
+  sil_width = silhouette_widths
+)
+
+silhouette_results
+
+max(silhouette_results$sil_width)
+
+kmeans_centroids <- silhouette_results %>% 
+arrange(desc(sil_width)) %>% 
+  slice(1) %>% 
+  pull(k)
+
+rm(silhouette_avg_f, silhouette_tries, silhouette_widths, silhouette_results)
+```
+
+
+
+```{r, eval=F, echo=T}
+# scree parameters
+scree_wss <- 0                 # initialize total within sum of squares error
+scree_k   <- 5                 # number of clusters to cycle
+scree_ns <- 10                 # number of random starts to cycle
+
+# For 1 to 15 cluster centers
+for (i in 1:scree_k) {
+  km_out <- kmeans(kmeans_selection, centers = i, nstart = scree_ns)
+  # Save total within sum of squares to wss variable
+  scree_wss[i] <- km_out$tot.withinss
+}
+
+# Quickplot of total within sum of squares vs. number of clusters
+plot(1:scree_k, scree_wss, type = "b", 
+     xlab = "Number of Clusters", 
+     ylab = "Within groups sum of squares")
+
+# clean up environment
+rm(i, scree_k, scree_ns, scree_wss, km_out)
+```
+
+
+```{r, eval=F, echo=T}
+# set random seed for reproducibility
+set.seed(1337)
+
+# run k-means with 3 centers and 20 starts
+kmeans_output <- kmeans(kmeans_selection, kmeans_centroids, nstart = 20)
+
+```
+
+
+
+```{r, eval=F, echo=T}
+
+
+kmeans_results <- kmeans_data %>% 
+  mutate(Cluster = kmeans_output$cluster) %>% # Merge clusters to data
+  mutate(Cluster = as.character(Cluster)) %>% # change to string for plotting asthetics
+  pivot_longer(cols = c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width), names_to = "Feature", values_to = "Value") %>% 
+  select(Feature, Value, Cluster)
+```
+
+
+```{r}
+kmeans_clustermeans <- kmeans_results %>% 
+  group_by(Feature, Cluster) %>% 
+  summarise(
+    Value = mean(Value)
+  )
+```
+
+
+#### Plot cluster heatmap
+
+```{r}
+# remove row names cluster and melt data
+kmeans_clustermeans %>%
+  
+  # plot heatmap
+  ggplot(aes(Cluster, Feature)) + 
+  geom_tile(aes(fill = Value),
+            colour = "white") +
+  scale_fill_gradient(low = "white",
+                      high = "#01B8AA") +
+  theme(legend.position = "none",
+        axis.line = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y=element_blank())
+```
+#### Cleanup environment
+
+```{r}
+rm(kmeans_clustermeans, kmeans_data, kmeans_output, kmeans_results, kmeans_selection, kmeans_centroids, kmeans_columns)
+```
+
+### PCA
+```{r}
+library(FactoMineR)
+library(skimr)
+library(tidyverse)
+data("poison")
+skim(poison)
+
+snippet_mca <- poison %>% 
+  select_if(function(col) is.factor(col) | is.numeric(col)) %>% 
+  names()
+
+
+data_mcatest <- poison[snippet_mca]
+
+
+data_mcatest %>% skim()
+
+
+res.mca <- FAMD(data_mcatest,
+                             graph=TRUE)
+
+
+
+
+
+eig.val <- res.mca$eig
+barplot(eig.val[, 2], 
+        names.arg = 1:nrow(eig.val), 
+        main = "Variances Explained by Dimensions (%)",
+        xlab = "Principal Dimensions",
+        ylab = "Percentage of variances",
+        col ="steelblue")
+# Add connected line segments to the plot
+lines(x = 1:nrow(eig.val), eig.val[, 2], 
+      type = "b", pch = 19, col = "red")
+
+plot(res.mca, autoLab = "yes")
+
+plot(res.mca,
+     invisible = c("var", "quali.sup", "quanti.sup"),
+     cex = 0.8,                                    
+     autoLab = "yes")
+```
