@@ -1,0 +1,10 @@
+---
+title: "stroopwafelr"
+output: bookdown::gitbook
+site: bookdown::bookdown_site
+---
+
+# Introduction
+
+
+> Omdat stroopwafels lekker zijn
