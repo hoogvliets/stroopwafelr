@@ -1,24 +1,15 @@
-# Model 
-
-## Supervised learning
-```{r}
-#bla
-```
-
-###  
-```{r}
-#bla
-```
-
-## Unsupervised learning
+# Unsupervised learning
 
 Test 123
 
-### K-means
+## K-means
+
 ```{r}
 library(tidyverse)
 library(cluster)
 ```
+
+Prepare data selection.
 
 ```{r}
 kmeans_data <- iris
@@ -27,6 +18,7 @@ kmeans_columns <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"
 kmeans_selection <- kmeans_data[kmeans_columns] %>% scale() %>% data.frame()
 ```
 
+Execute silhouette analysis to determine number of centroids.
 
 ```{r}
 silhouette_tries <- 10
@@ -56,7 +48,7 @@ arrange(desc(sil_width)) %>%
 rm(silhouette_avg_f, silhouette_tries, silhouette_widths, silhouette_results)
 ```
 
-
+Eyecheck scree plot for the elbow to determine number of centroids.
 
 ```{r}
 # scree parameters
@@ -80,6 +72,7 @@ plot(1:scree_k, scree_wss, type = "b",
 rm(i, scree_k, scree_ns, scree_wss, km_out)
 ```
 
+Run k-means algorithm.
 
 ```{r}
 # set random seed for reproducibility
@@ -90,6 +83,7 @@ kmeans_output <- kmeans(kmeans_selection, kmeans_centroids, nstart = 20)
 
 ```
 
+Merge the results to our original data, which is not scaled.
 
 
 ```{r}
@@ -102,6 +96,7 @@ kmeans_results <- kmeans_data %>%
   select(Feature, Value, Cluster)
 ```
 
+Get the average value for each feature so can get some useful business information about the clusters.
 
 ```{r}
 kmeans_clustermeans <- kmeans_results %>% 
@@ -111,8 +106,7 @@ kmeans_clustermeans <- kmeans_results %>%
   )
 ```
 
-
-#### Plot cluster heatmap
+Plot a heatmap of the cluster feature means.
 
 ```{r}
 # remove row names cluster and melt data
@@ -130,9 +124,9 @@ kmeans_clustermeans %>%
         axis.title.x = element_blank(),
         axis.title.y=element_blank())
 ```
-#### Cleanup environment
+
+Let's clean up our environment!
 
 ```{r}
 rm(kmeans_clustermeans, kmeans_data, kmeans_output, kmeans_results, kmeans_selection, kmeans_centroids, kmeans_columns)
 ```
-

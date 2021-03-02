@@ -1,1 +1,1 @@
-rmd_files: ["index.Rmd", "model.Rmd"]
+rmd_files: ["index.Rmd", "unsupervised_learning.Rmd"]
