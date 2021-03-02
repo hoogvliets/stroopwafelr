@@ -4,4 +4,7 @@ output: bookdown::gitbook
 site: bookdown::bookdown_site
 ---
 
+# stroopwafelr
+
+
 > Omdat stroopwafels lekker zijn
