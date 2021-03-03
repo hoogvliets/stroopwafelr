@@ -1,3 +1,18 @@
+
+# Updating bookdown
+
+
+    setwd("docs")
+    bookdown::render_book("index.Rmd", output_dir = "./")
+    
+Ti fix image issues:
+
+- Manually move images from docs/_bookdown_files/_main_files/ up to docs/ 
+- Manuualy update the src arguments in the HTML <img> tags accordingly
+
+
+
+
 -   [1 Config](#config)
     -   [1.1 Libraries](#libraries)
     -   [1.2 ](#section)
