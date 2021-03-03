@@ -8,10 +8,10 @@
 Ti fix image issues:
 
 - Manually move images from docs/_bookdown_files/_main_files/ up to docs/ 
-- Manuualy update the src arguments in the HTML <img> tags accordingly
+- Manually update the src arguments in the HTML <img> tags accordingly
 
 
-
+# TOC
 
 -   [1 Config](#config)
     -   [1.1 Libraries](#libraries)
